@@ -35,3 +35,13 @@ Thumbs.db
 # Editor files
 .vscode/
 .idea/
+
+# Node dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment variables
+.env*
