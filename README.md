@@ -1,1 +1,1 @@
-﻿# Next.js Shopify Clone
+﻿# Next.js e-commerce website trial
