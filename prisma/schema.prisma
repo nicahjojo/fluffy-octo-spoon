@@ -7,26 +7,48 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Products that can be sold
 model Product {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   title       String
   description String?
-  price       Int      // in cents
-  image       String?  // store image URL
+  price       Int      // stored in cents
+  image       String?  // path or URL to image
+
+  // Relations
+  OrderItem   OrderItem[]
 }
 
-
-model Order {
-  id        Int      @id @default(autoincrement())
-  total     Int
-  createdAt DateTime @default(now())
-}
-
-
+// Users who can place orders
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
+  role      String   @default("user") // "user" or "admin"
   createdAt DateTime @default(now())
+}
+
+
+// Orders placed by users
+model Order {
+  id        Int       @id @default(autoincrement())
+  total     Int
+  createdAt DateTime  @default(now())
+  userId    Int?      // optional for now
+  user      User?     @relation(fields: [userId], references: [id])
+  items     OrderItem[]
+}
+
+
+
+// Join table for Products in Orders (many-to-many)
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int     @default(1)
+
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
 }

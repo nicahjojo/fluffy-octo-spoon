@@ -16,8 +16,10 @@ export default function Login() {
     setLoading(true);
     try {
       await axios.post("/api/auth/login", form);
-      alert("Logged in successfully!");
-      router.push("/");
+localStorage.setItem("loggedIn", "true");   // <<< IMPORTANT FIX
+alert("Logged in successfully!");
+router.push("/");
+
     } catch (err) {
       console.error(err.response?.data || err.message);
       alert("Login failed!");

@@ -1,7 +1,7 @@
-// pages/admin/products/index.js
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { getSession } from "next-auth/react";
 
 export default function AdminProducts() {
   const [products, setProducts] = useState([]);
@@ -12,27 +12,27 @@ export default function AdminProducts() {
         const res = await axios.get("/api/products");
         setProducts(res.data);
       } catch (err) {
-        console.error(err.response?.data || err.message);
+        console.error(err);
       }
     }
     fetchProducts();
   }, []);
 
-  async function handleDelete(id) {
+  const handleDelete = async (id) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
     try {
       await axios.delete(`/api/products/${id}`);
       setProducts(products.filter((p) => p.id !== id));
     } catch (err) {
-      console.error(err.response?.data || err.message);
+      console.error(err);
       alert("Failed to delete product!");
     }
-  }
+  };
 
   return (
     <main className="container mx-auto p-6">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-2xl font-bold">Products (Admin)</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Admin Products</h1>
         <Link
           href="/admin/products/new"
           className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
@@ -57,21 +57,30 @@ export default function AdminProducts() {
               />
               <div className="flex-1">
                 <div className="font-semibold text-lg">{p.title}</div>
-                <div className="text-gray-600 mt-1">KSh {(p.price / 100).toFixed(2)}</div>
+                <div className="text-gray-600 mt-1">
+                  KSh {(p.price / 100).toFixed(2)}
+                </div>
               </div>
               <div className="flex flex-col gap-2 mt-4 md:mt-0">
                 <Link
                   href={`/admin/products/${p.id}`}
-                  className="px-3 py-1 border rounded text-sm text-white bg-blue-600 hover:bg-blue-500 transition text-center"
+                  className="px-3 py-1 border rounded text-sm text-white bg-blue-600 hover:bg-blue-500 text-center"
                 >
                   Edit
                 </Link>
                 <button
                   onClick={() => handleDelete(p.id)}
-                  className="px-3 py-1 border rounded text-sm text-white bg-red-600 hover:bg-red-500 transition"
+                  className="px-3 py-1 border rounded text-sm text-white bg-red-600 hover:bg-red-500"
                 >
                   Delete
                 </button>
+                <Link
+                        href="/admin/products/new"
+                         className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+>
+       New Product
+</Link>
+
               </div>
             </div>
           ))}
@@ -79,4 +88,17 @@ export default function AdminProducts() {
       )}
     </main>
   );
+}
+
+// Protect Admin route
+export async function getServerSideProps({ req }) {
+  const session = await getSession({ req });
+
+  if (!session || session.user.role !== "admin") {
+    return {
+      redirect: { destination: "/login", permanent: false },
+    };
+  }
+
+  return { props: {} };
 }

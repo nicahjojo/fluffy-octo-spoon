@@ -7,7 +7,7 @@ export default function Navbar() {
   return (
     <nav className="bg-black text-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center p-4">
-        <h1 className="text-2xl font-bold">MyShop</h1>
+        <h1 className="text-2xl font-bold">Nicah's Shop</h1>
 
         {/* Desktop Links */}
         <div className="hidden md:flex space-x-6">

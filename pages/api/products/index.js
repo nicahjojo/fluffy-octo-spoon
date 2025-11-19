@@ -1,3 +1,4 @@
+// pages/api/products/index.js
 import { prisma } from "../../../lib/prisma";
 
 export default async function handler(req, res) {
@@ -7,10 +8,18 @@ export default async function handler(req, res) {
       res.status(200).json(products);
     } else if (req.method === "POST") {
       const { title, description, price, image } = req.body;
-      if (!title || !price) return res.status(400).json({ error: "Title and price required" });
+
+      if (!title || !price) {
+        return res.status(400).json({ error: "Title and price are required" });
+      }
 
       const product = await prisma.product.create({
-        data: { title, description, price, image },
+        data: {
+          title,
+          description: description || "",
+          price: parseInt(price, 10),
+          image: image || "/images/placeholder.png",
+        },
       });
 
       res.status(201).json(product);
@@ -18,8 +27,8 @@ export default async function handler(req, res) {
       res.setHeader("Allow", ["GET", "POST"]);
       res.status(405).end(`Method ${req.method} Not Allowed`);
     }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch/create product" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export default function AdminProductForm({ initial = {}, onSuccess }) {
+const AdminProductForm = ({ initial = {}, onSuccess }) => {
   const [title, setTitle] = useState(initial.title || "");
   const [description, setDescription] = useState(initial.description || "");
   const [price, setPrice] = useState(initial.price ? initial.price / 100 : "");
@@ -17,8 +17,9 @@ export default function AdminProductForm({ initial = {}, onSuccess }) {
   };
 
   // Submit product to database
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setUploading(true);
 
     const payload = {
       title,
@@ -30,15 +31,18 @@ export default function AdminProductForm({ initial = {}, onSuccess }) {
     try {
       const url = initial.id ? `/api/products/${initial.id}` : "/api/products";
       const method = initial.id ? "put" : "post";
-      const res = await axios[method](url, payload);
 
+      const res = await axios[method](url, payload);
       if (onSuccess) onSuccess(res.data);
+
       alert("✅ Product saved successfully!");
     } catch (err) {
       console.error(err.response?.data || err.message);
       alert("❌ Failed to save product!");
+    } finally {
+      setUploading(false);
     }
-  }
+  };
 
   return (
     <form
@@ -49,41 +53,46 @@ export default function AdminProductForm({ initial = {}, onSuccess }) {
         {initial.id ? "Edit Product" : "Add New Product"}
       </h2>
 
+      {/* Title */}
       <div>
         <label className="block text-sm font-medium mb-1">Title</label>
         <input
+          type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-black"
           required
+          className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-black"
         />
       </div>
 
+      {/* Description */}
       <div>
         <label className="block text-sm font-medium mb-1">Description</label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-black"
           rows={4}
+          className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-black"
         />
       </div>
 
+      {/* Price */}
       <div>
         <label className="block text-sm font-medium mb-1">Price (KSh)</label>
         <input
           type="number"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
-          className="w-32 border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-black"
           required
+          className="w-32 border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-black"
         />
       </div>
 
+      {/* Image */}
       <div>
         <label className="block text-sm font-medium mb-1">Image</label>
         <input type="file" accept="image/*" onChange={handleImageSelect} />
-        {uploading && <div className="text-sm text-gray-600">Uploading...</div>}
+        {uploading && <div className="text-sm text-gray-600 mt-1">Saving...</div>}
         {image && (
           <img
             src={image}
@@ -93,14 +102,18 @@ export default function AdminProductForm({ initial = {}, onSuccess }) {
         )}
       </div>
 
+      {/* Submit Button */}
       <div className="text-center">
         <button
           type="submit"
           className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800 transition"
+          disabled={uploading}
         >
-          Save Product
+          {uploading ? "Saving..." : "Save Product"}
         </button>
       </div>
     </form>
   );
-}
+};
+
+export default AdminProductForm;

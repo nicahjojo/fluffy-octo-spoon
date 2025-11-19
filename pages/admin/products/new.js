@@ -8,7 +8,9 @@ export default function NewProduct() {
   return (
     <main className="container mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Create Product</h1>
-      <AdminProductForm onSuccess={() => router.push("/admin/products")} />
+      <AdminProductForm
+        onSuccess={() => router.push("/admin/products")}
+      />
     </main>
   );
 }
